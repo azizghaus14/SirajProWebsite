@@ -287,12 +287,29 @@
   }
 
   // ── Reveal on scroll ──
+  // Elements with `.reveal` start invisible (opacity: 0 + translateY)
+  // and animate in via the `.in` class. Below the fold, an
+  // IntersectionObserver triggers on entry. Above the fold (text-heavy
+  // pages like privacy / terms / support), the observer's first
+  // callback can fire late enough that the user briefly sees blank
+  // content — so we also do a synchronous "is it already visible?"
+  // sweep in the next frame and force `.in` on anything currently in
+  // the viewport. Belt-and-suspenders, but it makes the legal pages
+  // reliably show their content the moment they load.
   function initReveal() {
     const els = document.querySelectorAll(".reveal");
-    if (!("IntersectionObserver" in window) || !els.length) {
+    if (!els.length) return;
+
+    const inViewport = (el) => {
+      const r = el.getBoundingClientRect();
+      return r.top < window.innerHeight && r.bottom > 0;
+    };
+
+    if (!("IntersectionObserver" in window)) {
       els.forEach((e) => e.classList.add("in"));
       return;
     }
+
     const io = new IntersectionObserver(
       (entries) => {
         entries.forEach((e) => {
@@ -302,9 +319,24 @@
           }
         });
       },
-      { threshold: 0.1, rootMargin: "0px 0px -40px 0px" }
+      { threshold: 0.05, rootMargin: "0px 0px -40px 0px" }
     );
     els.forEach((e) => io.observe(e));
+
+    // Force-reveal anything already in the viewport on initial paint
+    // — two `requestAnimationFrame` calls ensures we run after layout
+    // settles AND after the first paint, so the CSS transition still
+    // plays smoothly instead of snapping.
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        els.forEach((el) => {
+          if (!el.classList.contains("in") && inViewport(el)) {
+            el.classList.add("in");
+            io.unobserve(el);
+          }
+        });
+      });
+    });
   }
 
   function boot() {
