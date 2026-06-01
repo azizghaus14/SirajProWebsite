@@ -1,0 +1,226 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Support — Siraj Pro</title>
+<meta name="description" content="Help, FAQs, and contact for Siraj Pro — the iOS prayer times app.">
+<meta name="theme-color" content="#00131B">
+<link rel="icon" type="image/png" href="assets/SirajProLogo.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700;9..40,800&family=Cormorant+Garamond:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<div class="bg-root"></div>
+<div class="bg-pattern"></div>
+<div class="bg-ray"><img src="assets/LightRay.png" alt=""></div>
+<div class="glare-field" aria-hidden="true"></div>
+
+<header class="nav">
+  <div class="container nav-inner">
+    <a href="index.html" class="brand">
+      <img src="assets/SirajProLogo.png" alt="">
+      <span>Siraj Pro</span>
+    </a>
+    <nav class="nav-links">
+      <a href="index.html#features">Features</a>
+      <a href="index.html#widgets">Widgets</a>
+      <a href="index.html#pricing">Pricing</a>
+      <a href="support.html">Support</a>
+      <a class="btn btn-primary nav-cta" href="index.html#download">Get the app</a>
+    </nav>
+    <button class="nav-toggle" aria-label="Toggle menu">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+        <path d="M4 7h16M4 12h16M4 17h16" stroke-linecap="round"/>
+      </svg>
+    </button>
+  </div>
+</header>
+
+<section class="legal" id="faq">
+  <div class="container">
+    <div class="legal-head reveal">
+      <span class="eyebrow">Support</span>
+      <h1 class="title-fade" style="margin-top:14px;">How can we help?</h1>
+      <div class="meta">Answers to the questions we hear most. If yours isn't here, write to us.</div>
+    </div>
+
+    <div class="faq reveal">
+
+      <details class="glass">
+        <summary>How does Siraj Pro calculate prayer times?</summary>
+        <p>
+          Siraj Pro uses well-established astronomical algorithms based on your device's location
+          and clock. By default we use the <strong>Muslim World League</strong> method, with optional
+          ISNA, Egyptian General Authority, Umm al-Qura (Saudi Arabia), and University of Islamic
+          Sciences Karachi methods. You can also pick your madhab (Shafi'i / Hanafi) which adjusts
+          the Asr calculation.
+        </p>
+      </details>
+
+      <details class="glass">
+        <summary>Why does the app ask for my location?</summary>
+        <p>
+          Accurate prayer times depend on your exact position on Earth. Siraj Pro requests "while
+          using" location permission so it can compute times for where you are. Your coordinates
+          stay <strong>entirely on your device</strong> — we do not transmit them anywhere. If you
+          prefer, you can deny the permission and pick a city manually.
+        </p>
+      </details>
+
+      <details class="glass">
+        <summary>Why don't I see prayer notifications?</summary>
+        <p>A few things to check:</p>
+        <ul>
+          <li>Open <em>Settings → Notifications → Siraj Pro</em> and confirm notifications are allowed.</li>
+          <li>Make sure your Focus / Do Not Disturb mode isn't filtering Siraj Pro.</li>
+          <li>Open Siraj Pro at least once a day so iOS keeps refreshing its scheduled notifications.</li>
+          <li>If the Adhan sound is silent, check that system volume is up and that you've chosen a sound in <em>More → Notifications</em> inside the app.</li>
+        </ul>
+      </details>
+
+      <details class="glass">
+        <summary>The Qibla compass seems off — what should I do?</summary>
+        <p>
+          Compass accuracy depends on your device's magnetometer. To recalibrate, open the iOS
+          Compass app and follow the on-screen calibration motion (figure-8 wave). Stay away from
+          large metal objects, magnets, and laptops. Siraj Pro will gently tap your phone when
+          you're correctly aligned.
+        </p>
+      </details>
+
+      <details class="glass">
+        <summary>How do I add a Siraj Pro widget?</summary>
+        <p>
+          Long-press an empty area of your iOS home screen until the icons jiggle, tap the
+          <strong>+</strong> in the top-left, search for <em>Siraj Pro</em>, and choose Small,
+          Medium or Large. Change the widget theme any time from <em>More → Themes</em> inside
+          the app — the new look applies instantly.
+        </p>
+      </details>
+
+      <details class="glass">
+        <summary>What is the Live Activity?</summary>
+        <p>
+          Live Activity is a glanceable countdown to your next prayer that appears on the Lock
+          Screen and in the Dynamic Island on supported iPhones. It updates automatically and goes
+          away once the prayer time passes. Live Activity is a Siraj Pro premium feature.
+        </p>
+      </details>
+
+      <details class="glass">
+        <summary>How does the App Blocker work?</summary>
+        <p>
+          The App Blocker uses Apple's official Screen Time / Family Controls framework to softly
+          restrict the apps you select around prayer windows. The restriction is lifted the moment
+          you tap "I have prayed". Because Siraj Pro uses Apple's framework, you must grant Screen
+          Time permission on first use — we never see what you have on your device.
+        </p>
+      </details>
+
+      <details class="glass">
+        <summary>How do I cancel my subscription?</summary>
+        <p>
+          All subscriptions are managed by Apple. Open
+          <em>Settings → [your name] → Subscriptions → Siraj Pro</em>, then tap
+          <strong>Cancel Subscription</strong>. Your premium features remain active until the end
+          of the current billing period. Uninstalling the app does not cancel the subscription.
+        </p>
+      </details>
+
+      <details class="glass">
+        <summary>I was charged after my free trial — can I get a refund?</summary>
+        <p>
+          All payments are processed by Apple, so refund requests go through Apple as well.
+          Visit <a href="https://reportaproblem.apple.com" target="_blank" rel="noopener" style="color:var(--accent);border-bottom:0.5px solid rgba(107,199,219,.45);">reportaproblem.apple.com</a>,
+          sign in with the Apple ID you used to subscribe, find Siraj Pro in the list and request a
+          refund. We're happy to write to Apple in support of your request — email us the date and
+          we'll vouch for you.
+        </p>
+      </details>
+
+      <details class="glass">
+        <summary>I restored my purchase but Pro features didn't unlock.</summary>
+        <p>
+          Open Siraj Pro, go to <em>More → Restore Purchases</em>. Make sure you're signed in to
+          the same Apple ID that originally purchased the subscription. If the issue persists,
+          email us your receipt (Apple emails you one for every renewal) and we'll fix it.
+        </p>
+      </details>
+
+      <details class="glass">
+        <summary>Does Siraj Pro work on iPad or Apple Watch?</summary>
+        <p>
+          Siraj Pro is currently designed for iPhone, and runs on iPad in iPhone compatibility mode.
+          A native iPad layout and Apple Watch complications are on the roadmap.
+        </p>
+      </details>
+
+      <details class="glass">
+        <summary>I have a feature idea or want to report a bug.</summary>
+        <p>
+          We'd love to hear it. Email
+          <a href="mailto:azizghaus80@gmail.com" style="color:var(--accent);border-bottom:0.5px solid rgba(107,199,219,.45);">azizghaus80@gmail.com</a> and include your
+          iPhone model, iOS version, and a screenshot or description of what happened. Every
+          message reaches us directly — there's no support team to route through.
+        </p>
+      </details>
+
+    </div>
+
+    <div class="contact-card glass reveal" style="margin-top:54px;">
+      <h3>Still need help?</h3>
+      <p>We respond to every email, usually within one to two days.</p>
+      <a class="email" href="mailto:azizghaus80@gmail.com">azizghaus80@gmail.com</a>
+    </div>
+
+  </div>
+</section>
+
+<footer class="footer">
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <div class="brand">
+          <img src="assets/SirajProLogo.png" alt="">
+          <span>Siraj Pro</span>
+        </div>
+        <p>A beautiful, accurate prayer companion for iOS. Designed and built with care by SMAG.</p>
+      </div>
+      <div>
+        <h4>Product</h4>
+        <ul>
+          <li><a href="index.html#features">Features</a></li>
+          <li><a href="index.html#widgets">Widgets</a></li>
+          <li><a href="index.html#themes">Themes</a></li>
+          <li><a href="index.html#pricing">Pricing</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>Support</h4>
+        <ul>
+          <li><a href="support.html">Help center</a></li>
+          <li><a href="support.html#faq">FAQ</a></li>
+          <li><a href="mailto:azizghaus80@gmail.com">Contact us</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>Legal</h4>
+        <ul>
+          <li><a href="privacy.html">Privacy Policy</a></li>
+          <li><a href="terms.html">Terms of Use</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© <span data-year>2026</span> SMAG. All rights reserved.</span>
+    </div>
+  </div>
+</footer>
+
+<script src="script.js"></script>
+</body>
+</html>
