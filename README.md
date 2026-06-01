@@ -1,6 +1,6 @@
 # Siraj Pro — marketing site
 
-The marketing website for **Siraj Pro**, a beautiful prayer-times app for iOS built by SMAG.
+The marketing website for **Siraj Pro**, a beautiful prayer-times app for iOS built by Syed Muhammad Aziz Ghaus.
 
 Static HTML / CSS / vanilla JS. No build step. Deploys anywhere that can serve files — GitHub Pages, Cloudflare Pages, Netlify, Vercel, an S3 bucket, etc.
 
@@ -52,4 +52,4 @@ The site mirrors the real in-app design system from
 
 ## License
 
-© SMAG. All rights reserved.
+© Syed Muhammad Aziz Ghaus. All rights reserved.
