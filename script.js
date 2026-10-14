@@ -339,11 +339,47 @@
     });
   }
 
+  // ── Android waitlist ──
+  // Shows an inline success message when the user comes back from
+  // formsubmit.co's confirmation redirect (?waitlist=success in the
+  // URL), and gives the submit button a "Sending…" state so the
+  // interaction feels responsive even though POSTing to formsubmit
+  // navigates the whole page.
+  function initWaitlist() {
+    const form = document.querySelector("[data-waitlist]");
+    const note = document.querySelector("[data-waitlist-note]");
+    if (!form) return;
+
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("waitlist") === "success" && note) {
+      note.textContent = "🎉 You're on the list — we'll email you the moment the Android app launches.";
+      note.classList.add("is-success");
+      // Scroll to the card so the message is immediately visible.
+      requestAnimationFrame(() => {
+        document.getElementById("android")?.scrollIntoView({ behavior: "smooth", block: "start" });
+      });
+      // Strip the query so a refresh doesn't keep showing success.
+      if (window.history.replaceState) {
+        const clean = window.location.pathname + window.location.hash;
+        window.history.replaceState({}, "", clean);
+      }
+    }
+
+    const btn = form.querySelector(".waitlist-submit");
+    form.addEventListener("submit", () => {
+      if (btn) {
+        btn.disabled = true;
+        btn.textContent = "Sending…";
+      }
+    });
+  }
+
   function boot() {
     makeGlares();
     initNav();
     initThemeWidgets();
     initReveal();
+    initWaitlist();
     document.querySelectorAll("[data-year]").forEach((el) => {
       el.textContent = new Date().getFullYear();
     });
