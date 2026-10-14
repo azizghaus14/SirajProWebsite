@@ -458,8 +458,33 @@ body { padding-top: 78px; }
 .hero-cta {
   margin-top: 34px;
   display: flex;
-  gap: 12px;
+  gap: 14px;
   flex-wrap: wrap;
+  align-items: flex-start;
+}
+/* Primary CTAs — App Store + Android waitlist — stacked vertically
+   so the waitlist button sits directly under the download button. */
+.hero-cta-primary {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  align-items: stretch;
+}
+.hero-cta-primary .btn { width: 100%; }
+
+/* Android variant of btn-primary — same pill, same icon placement,
+   but a green-leaning gradient so it reads as "the other platform"
+   at a glance instead of looking like a duplicate iOS button. */
+.btn-android {
+  background: linear-gradient(90deg, #D4F9E4 0%, #0E7A4A 100%);
+  box-shadow:
+    0 14px 36px rgba(14, 122, 74, 0.42),
+    inset 0 1px 0 rgba(255, 255, 255, 0.55);
+}
+.btn-android:hover {
+  box-shadow:
+    0 20px 48px rgba(14, 122, 74, 0.56),
+    inset 0 1px 0 rgba(255, 255, 255, 0.6);
 }
 .hero-meta {
   margin-top: 32px;
@@ -1248,10 +1273,19 @@ body { padding-top: 78px; }
 .cta-strip .btns {
   margin-top: 32px;
   display: inline-flex;
-  gap: 12px;
+  gap: 14px;
   flex-wrap: wrap;
   justify-content: center;
+  align-items: flex-start;
 }
+/* Stack the two primary CTAs vertically — same pattern as .hero-cta-primary. */
+.cta-strip .btns-primary {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  align-items: stretch;
+}
+.cta-strip .btns-primary .btn { width: 100%; }
 .cta-strip .verse {
   margin-top: 44px;
   padding-top: 30px;
