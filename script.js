@@ -340,37 +340,94 @@
   }
 
   // ── Android waitlist ──
-  // Shows an inline success message when the user comes back from
-  // formsubmit.co's confirmation redirect (?waitlist=success in the
-  // URL), and gives the submit button a "Sending…" state so the
-  // interaction feels responsive even though POSTing to formsubmit
-  // navigates the whole page.
+  //
+  // Two paths:
+  //
+  // 1. Big section form (#android .waitlist-form) — classic HTML form
+  //    that POSTs to formsubmit.co and uses the ?waitlist=success
+  //    redirect to show success inline.
+  //
+  // 2. Inline buttons in the hero + closing CTA — click expands a
+  //    compact email-input pill right in place (no scrolling at all),
+  //    and submission uses formsubmit.co's AJAX endpoint so the page
+  //    never navigates. Dramatically more reliable on mobile than
+  //    scrolling to the big section with the fixed nav in the way.
   function initWaitlist() {
-    const form = document.querySelector("[data-waitlist]");
-    const note = document.querySelector("[data-waitlist-note]");
-    if (!form) return;
-
-    const params = new URLSearchParams(window.location.search);
-    if (params.get("waitlist") === "success" && note) {
-      note.textContent = "🎉 You're on the list — we'll email you the moment the Android app launches.";
-      note.classList.add("is-success");
-      // Scroll to the card so the message is immediately visible.
-      requestAnimationFrame(() => {
-        document.getElementById("android")?.scrollIntoView({ behavior: "smooth", block: "start" });
-      });
-      // Strip the query so a refresh doesn't keep showing success.
-      if (window.history.replaceState) {
-        const clean = window.location.pathname + window.location.hash;
-        window.history.replaceState({}, "", clean);
+    // ─── (1) Big section redirect-success handling ───
+    const bigForm = document.querySelector("[data-waitlist]");
+    const bigNote = document.querySelector("[data-waitlist-note]");
+    if (bigForm) {
+      const params = new URLSearchParams(window.location.search);
+      if (params.get("waitlist") === "success" && bigNote) {
+        bigNote.textContent = "🎉 You're on the list — we'll email you the moment the Android app launches.";
+        bigNote.classList.add("is-success");
+        if (window.history.replaceState) {
+          const clean = window.location.pathname + window.location.hash;
+          window.history.replaceState({}, "", clean);
+        }
       }
+      const bigBtn = bigForm.querySelector(".waitlist-submit");
+      bigForm.addEventListener("submit", () => {
+        if (bigBtn) {
+          bigBtn.disabled = true;
+          bigBtn.textContent = "Sending…";
+        }
+      });
     }
 
-    const btn = form.querySelector(".waitlist-submit");
-    form.addEventListener("submit", () => {
-      if (btn) {
-        btn.disabled = true;
-        btn.textContent = "Sending…";
-      }
+    // ─── (2) Inline button → expand → AJAX submit ───
+    document.querySelectorAll("[data-waitlist-toggle]").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const form = document.getElementById(btn.dataset.waitlistToggle);
+        if (!form) return;
+        btn.style.display = "none";
+        form.classList.add("is-open");
+        // Focus the input on the next frame so the keyboard pops on mobile.
+        requestAnimationFrame(() => {
+          form.querySelector("input[type=email]")?.focus({ preventScroll: true });
+        });
+      });
+    });
+
+    document.querySelectorAll("[data-ajax-waitlist]").forEach((form) => {
+      form.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const input = form.querySelector("input[type=email]");
+        const submit = form.querySelector(".inline-waitlist-submit");
+        const email = (input?.value || "").trim();
+        if (!email) return;
+
+        // Remove any previous error state.
+        form.querySelector(".inline-waitlist-error")?.remove();
+
+        submit.disabled = true;
+        const originalLabel = submit.textContent;
+        submit.textContent = "…";
+
+        try {
+          const res = await fetch("https://formsubmit.co/ajax/sirajproapp@gmail.com", {
+            method: "POST",
+            headers: { "Content-Type": "application/json", "Accept": "application/json" },
+            body: JSON.stringify({
+              email,
+              _subject: "Siraj Pro — new Android waitlist signup (inline)",
+              _captcha: "false",
+              _template: "table",
+              source: form.id || "inline",
+            }),
+          });
+          if (!res.ok) throw new Error("Submission failed");
+          // Replace the form contents with an inline success message.
+          form.innerHTML = `<div class="inline-waitlist-success">🎉 You're on the list — we'll email you the moment the Android app launches.</div>`;
+        } catch (err) {
+          submit.disabled = false;
+          submit.textContent = originalLabel;
+          const msg = document.createElement("div");
+          msg.className = "inline-waitlist-error";
+          msg.textContent = "Couldn't submit — please try again, or email sirajproapp@gmail.com.";
+          form.appendChild(msg);
+        }
+      });
     });
   }
 
