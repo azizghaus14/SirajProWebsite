@@ -478,31 +478,57 @@
     el.setAttribute("aria-modal", "true");
     el.innerHTML = `
       <div class="in-app-backdrop" data-dismiss></div>
-      <div class="in-app-card">
+      <div class="in-app-sheet" role="document">
+        <div class="in-app-grabber" aria-hidden="true"></div>
         <button type="button" class="in-app-close" data-dismiss aria-label="Close">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
             <path d="M6 6l12 12M18 6L6 18"/>
           </svg>
         </button>
 
-        <div class="in-app-icon" aria-hidden="true">
-          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.05 20.28c-.98.95-2.05.8-3.08.35-1.09-.46-2.09-.48-3.24 0-1.44.62-2.2.44-3.06-.35C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.53 4.08zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z"/></svg>
+        <div class="in-app-hero">
+          <div class="in-app-app-icon" aria-hidden="true">
+            <img src="assets/SirajProLogo.png" alt="">
+          </div>
+          <h3>Open Siraj Pro in Safari</h3>
+          <p>You're inside <strong>${escapeHtml(appName)}</strong>'s in-app browser — it can't reliably open the App Store from here. Pick either option:</p>
         </div>
 
-        <h3>Open in Safari to download</h3>
-        <p>You're viewing this inside <strong>${escapeHtml(appName)}</strong>'s in-app browser, which can't reliably open App Store links. Here's how to get Siraj Pro:</p>
+        <div class="in-app-options">
+          <div class="in-app-option">
+            <div class="in-app-option-num" aria-hidden="true">1</div>
+            <div class="in-app-option-body">
+              <h4>Copy the link</h4>
+              <p>Then paste it into Safari.</p>
+              <div class="in-app-link">
+                <input type="text" readonly value="${escapeHtml(APP_STORE_URL)}" aria-label="Siraj Pro App Store link">
+                <button type="button" class="in-app-copy" data-copy>
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <rect x="9" y="9" width="12" height="12" rx="2.5"/>
+                    <path d="M5 15H4a1.5 1.5 0 01-1.5-1.5v-9A1.5 1.5 0 014 3h9A1.5 1.5 0 0114.5 4.5V5"/>
+                  </svg>
+                  <span>Copy</span>
+                </button>
+              </div>
+            </div>
+          </div>
 
-        <ol class="in-app-steps">
-          <li>Tap <strong>Copy link</strong> below.</li>
-          <li>Tap the <strong>•••</strong> (or share) menu in ${escapeHtml(appName)} and choose <strong>Open in browser</strong> — or paste the link into Safari.</li>
-        </ol>
+          <div class="in-app-or" aria-hidden="true"><span>or</span></div>
 
-        <div class="in-app-link">
-          <input type="text" readonly value="${escapeHtml(APP_STORE_URL)}" aria-label="Siraj Pro App Store link">
-          <button type="button" class="in-app-copy" data-copy>Copy link</button>
+          <div class="in-app-option">
+            <div class="in-app-option-num" aria-hidden="true">2</div>
+            <div class="in-app-option-body">
+              <h4>Search the App Store</h4>
+              <p>Open the App Store and look for <strong>Siraj Pro</strong>.</p>
+              <button type="button" class="in-app-pill" data-open-store>
+                <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M17.05 20.28c-.98.95-2.05.8-3.08.35-1.09-.46-2.09-.48-3.24 0-1.44.62-2.2.44-3.06-.35C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.53 4.08zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z"/></svg>
+                Open App Store
+              </button>
+            </div>
+          </div>
         </div>
 
-        <button type="button" class="in-app-try" data-try>Try opening anyway</button>
+        <button type="button" class="in-app-cancel" data-dismiss>Not now</button>
       </div>
     `;
     document.body.appendChild(el);
@@ -511,8 +537,9 @@
     el.querySelectorAll("[data-dismiss]").forEach((n) => n.addEventListener("click", close));
     el.addEventListener("keydown", (e) => { if (e.key === "Escape") close(); });
 
-    const input = el.querySelector("input");
+    const input = el.querySelector(".in-app-link input");
     const copyBtn = el.querySelector("[data-copy]");
+    const copyLabel = copyBtn.querySelector("span");
     copyBtn.addEventListener("click", async () => {
       try {
         await navigator.clipboard.writeText(APP_STORE_URL);
@@ -521,27 +548,19 @@
         input.setSelectionRange(0, APP_STORE_URL.length);
         try { document.execCommand("copy"); } catch {}
       }
-      copyBtn.textContent = "✓ Copied";
+      copyLabel.textContent = "Copied";
       copyBtn.classList.add("is-copied");
       setTimeout(() => {
-        copyBtn.textContent = "Copy link";
+        copyLabel.textContent = "Copy";
         copyBtn.classList.remove("is-copied");
       }, 1800);
     });
 
-    el.querySelector("[data-try]").addEventListener("click", () => {
-      // Best-effort escape sequence. There is no public API to force
-      // an in-app webview to hand off to Safari — iOS blocks that for
-      // security. These two attempts are the closest we can get:
-      //
-      // 1. `itms-apps://` is the direct "launch App Store app" scheme.
-      //    Some webviews (notably TikTok's older builds and Snapchat)
-      //    pass this through to iOS, which hands it to the App Store
-      //    app natively — bypassing Safari entirely.
-      // 2. If that silently no-ops, the setTimeout fallback opens the
-      //    standard HTTPS universal link in a new window, which at
-      //    worst reproduces the current behaviour and at best triggers
-      //    SKStoreProductViewController (the in-app store sheet).
+    el.querySelector("[data-open-store]").addEventListener("click", () => {
+      // Try the native App Store scheme first — some in-app webviews
+      // (older TikTok, Snapchat) hand this straight to iOS which
+      // launches the App Store app natively. If it silently no-ops,
+      // fall through to the universal link ~450ms later.
       const itmsUrl = APP_STORE_URL.replace(/^https?:\/\/apps\.apple\.com/, "itms-apps://apps.apple.com");
       window.location.href = itmsUrl;
       setTimeout(() => {

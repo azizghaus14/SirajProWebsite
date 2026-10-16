@@ -567,10 +567,12 @@ body { padding-top: 78px; }
    the big section's heading under the fixed pill nav. */
 #android { scroll-margin-top: 100px; }
 
-/* ── In-app browser escape overlay (TikTok, Instagram, …) ───
-   Shown when the user is in a social-app webview on iOS and taps
-   an App Store link — the webview can't reliably open those, so
-   we give them a copy-link + instructions card instead. */
+/* ──────────────────────────────────────────────────────────
+   In-app browser escape — Apple Liquid Glass bottom sheet
+   Modeled on iOS 26 action sheets / SKStoreProductViewController
+   presentation. Translucent frosted material, specular rim, grabber
+   handle, numbered option cards, pill actions.
+   ────────────────────────────────────────────────────────── */
 .in-app-overlay {
   position: fixed;
   inset: 0;
@@ -579,166 +581,317 @@ body { padding-top: 78px; }
   align-items: flex-end;
   justify-content: center;
   padding: 0;
+  /* iOS-native font stack so the sheet typography matches the system
+     dialogs it's modeled after. */
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text",
+               "SF Pro", "Helvetica Neue", var(--sans);
 }
 .in-app-overlay.is-open {
   display: flex;
-  animation: in-app-fade .22s ease;
+  animation: in-app-fade .25s ease;
 }
 .in-app-backdrop {
   position: absolute;
   inset: 0;
-  background: rgba(0, 10, 16, 0.72);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
+  background: rgba(0, 0, 0, 0.42);
+  backdrop-filter: blur(6px) saturate(140%);
+  -webkit-backdrop-filter: blur(6px) saturate(140%);
 }
-.in-app-card {
+
+/* The sheet itself — the "glass pane". */
+.in-app-sheet {
   position: relative;
   z-index: 1;
   width: 100%;
-  max-width: 440px;
+  max-width: 460px;
   margin: 0 auto;
-  padding: 32px 26px 26px;
-  background: linear-gradient(180deg,
-    rgba(10, 18, 24, 0.98) 0%,
-    rgba(0, 10, 16, 0.98) 100%);
-  border-top-left-radius: 28px;
-  border-top-right-radius: 28px;
-  border: 0.5px solid rgba(255, 255, 255, 0.08);
+  padding: 10px 20px 22px;
+  color: #fff;
+  text-align: left;
+  animation: in-app-slide .42s cubic-bezier(.22, 1, .36, 1);
+  max-height: calc(100vh - 32px);
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+
+  /* Liquid Glass surface — translucent dark material + specular rim */
+  background:
+    linear-gradient(180deg,
+      rgba(255, 255, 255, 0.08) 0%,
+      rgba(255, 255, 255, 0) 24%),
+    rgba(28, 28, 30, 0.72);
+  backdrop-filter: blur(44px) saturate(180%);
+  -webkit-backdrop-filter: blur(44px) saturate(180%);
+
+  border-top-left-radius: 32px;
+  border-top-right-radius: 32px;
+  border: 0.5px solid rgba(255, 255, 255, 0.12);
   border-bottom: none;
   box-shadow:
-    0 -24px 60px rgba(0, 0, 0, 0.7),
-    inset 0 1px 0 rgba(255, 255, 255, 0.08);
-  color: #fff;
-  animation: in-app-slide .32s cubic-bezier(.2, .7, .25, 1);
-  text-align: left;
-  max-height: calc(100vh - 40px);
-  overflow-y: auto;
-}
-@media (min-width: 520px) {
-  .in-app-overlay { align-items: center; padding: 24px; }
-  .in-app-card { border-radius: 24px; border-bottom: 0.5px solid rgba(255, 255, 255, 0.08); animation-name: in-app-pop; }
+    inset 0 1px 0 rgba(255, 255, 255, 0.22),      /* top specular */
+    inset 0 -1px 0 rgba(255, 255, 255, 0.04),
+    0 -32px 80px rgba(0, 0, 0, 0.55);
 }
 
+/* On wider viewports, promote to a centered dialog like Apple's
+   confirmation modals. */
+@media (min-width: 540px) {
+  .in-app-overlay { align-items: center; padding: 24px; }
+  .in-app-sheet {
+    border-radius: 28px;
+    border: 0.5px solid rgba(255, 255, 255, 0.12);
+    animation-name: in-app-pop;
+    animation-duration: .32s;
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.22),
+      inset 0 -1px 0 rgba(255, 255, 255, 0.04),
+      0 32px 80px rgba(0, 0, 0, 0.55);
+  }
+  .in-app-grabber { display: none; }
+}
+
+/* Grabber handle — pill at the very top of the sheet (iOS pattern). */
+.in-app-grabber {
+  width: 38px;
+  height: 5px;
+  margin: 6px auto 16px;
+  border-radius: 2.5px;
+  background: rgba(255, 255, 255, 0.28);
+}
+
+/* Close affordance — small circle in the top-right corner. */
 .in-app-close {
   position: absolute;
   top: 14px;
   right: 14px;
-  width: 32px;
-  height: 32px;
+  width: 30px;
+  height: 30px;
   display: grid;
   place-items: center;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.07);
-  border: 0.5px solid rgba(255, 255, 255, 0.10);
-  color: rgba(255, 255, 255, 0.75);
+  background: rgba(120, 120, 128, 0.32);
+  border: none;
+  color: rgba(235, 235, 245, 0.75);
   cursor: pointer;
-  transition: background .15s ease;
+  transition: background .15s ease, transform .15s ease;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
 }
-.in-app-close:hover { background: rgba(255, 255, 255, 0.12); }
-.in-app-close svg { width: 15px; height: 15px; }
+.in-app-close:hover { background: rgba(120, 120, 128, 0.5); }
+.in-app-close:active { transform: scale(0.94); }
+.in-app-close svg { width: 14px; height: 14px; }
 
-.in-app-icon {
-  width: 48px;
-  height: 48px;
-  border-radius: 14px;
-  background: rgba(var(--accent-rgb), 0.14);
-  border: 0.5px solid rgba(var(--accent-rgb), 0.32);
+/* Hero area — app icon + title + explainer. */
+.in-app-hero { text-align: center; padding: 4px 4px 20px; }
+
+.in-app-app-icon {
+  width: 68px;
+  height: 68px;
+  margin: 0 auto 16px;
+  border-radius: 16px;    /* iOS continuous-corner app-icon radius */
+  background: #fff;
+  box-shadow:
+    0 0 0 0.5px rgba(255, 255, 255, 0.18),
+    0 10px 24px rgba(0, 0, 0, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.4);
+  overflow: hidden;
   display: grid; place-items: center;
-  color: var(--accent);
-  margin-bottom: 18px;
 }
-.in-app-icon svg { width: 24px; height: 24px; }
+.in-app-app-icon img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
 
-.in-app-card h3 {
+.in-app-hero h3 {
   font-size: 20px;
   font-weight: 700;
-  letter-spacing: -0.015em;
+  letter-spacing: -0.02em;
   line-height: 1.25;
+  color: #fff;
 }
-.in-app-card p {
-  margin-top: 10px;
+.in-app-hero p {
+  margin-top: 8px;
   font-size: 14px;
-  line-height: 1.55;
-  color: rgba(255, 255, 255, 0.72);
+  line-height: 1.45;
+  color: rgba(235, 235, 245, 0.70);
+  max-width: 360px;
+  margin-left: auto;
+  margin-right: auto;
 }
-.in-app-card p strong { color: #fff; font-weight: 600; }
+.in-app-hero p strong { color: #fff; font-weight: 600; }
 
-.in-app-steps {
-  margin: 18px 0 20px;
-  padding-left: 20px;
-  font-size: 14px;
-  line-height: 1.6;
-  color: rgba(255, 255, 255, 0.82);
+/* Options stack — two numbered cards split by a soft "or". */
+.in-app-options {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 10px;
 }
-.in-app-steps li { margin-top: 6px; }
-.in-app-steps li::marker { color: var(--accent); font-weight: 700; }
-.in-app-steps strong { color: #fff; font-weight: 600; }
 
+.in-app-option {
+  display: flex;
+  gap: 14px;
+  padding: 16px 16px 18px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 0.5px solid rgba(255, 255, 255, 0.08);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.07);
+}
+
+.in-app-option-num {
+  flex-shrink: 0;
+  width: 24px;
+  height: 24px;
+  margin-top: 2px;
+  border-radius: 50%;
+  background: rgba(var(--accent-rgb), 0.20);
+  color: var(--accent);
+  display: grid;
+  place-items: center;
+  font-size: 12px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  box-shadow: inset 0 0 0 0.5px rgba(var(--accent-rgb), 0.4);
+}
+
+.in-app-option-body { flex: 1 1 auto; min-width: 0; }
+.in-app-option-body h4 {
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: #fff;
+}
+.in-app-option-body > p {
+  margin-top: 2px;
+  font-size: 13px;
+  line-height: 1.45;
+  color: rgba(235, 235, 245, 0.65);
+}
+.in-app-option-body > p strong { color: #fff; font-weight: 600; }
+
+/* Decorative "or" divider between options */
+.in-app-or {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 2px 4px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(235, 235, 245, 0.4);
+}
+.in-app-or::before,
+.in-app-or::after {
+  content: "";
+  flex: 1;
+  height: 0.5px;
+  background: rgba(255, 255, 255, 0.10);
+}
+
+/* Copy-link combo (option 1) */
 .in-app-link {
+  margin-top: 12px;
   display: flex;
   gap: 6px;
-  padding: 5px;
-  border-radius: var(--pill);
-  background: rgba(0, 0, 0, 0.55);
-  border: 0.5px solid rgba(var(--accent-rgb), 0.30);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
-  margin-bottom: 14px;
+  padding: 4px;
+  border-radius: 12px;
+  background: rgba(0, 0, 0, 0.4);
+  border: 0.5px solid rgba(255, 255, 255, 0.10);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
 }
 .in-app-link input {
   flex: 1 1 auto;
   min-width: 0;
   background: transparent;
   border: none;
-  padding: 9px 14px;
-  color: rgba(255, 255, 255, 0.65);
-  font-family: var(--sans);
-  font-size: 13px;
+  padding: 8px 12px;
+  color: rgba(235, 235, 245, 0.65);
+  font-family: inherit;
+  font-size: 12.5px;
   outline: none;
   text-overflow: ellipsis;
 }
 .in-app-copy {
   flex-shrink: 0;
-  padding: 9px 16px;
-  border-radius: var(--pill);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border-radius: 9px;
   border: none;
-  background: linear-gradient(90deg, var(--btn-start), var(--btn-end));
+  background: var(--accent);
   color: #00131B;
-  font-family: var(--sans);
-  font-weight: 700;
+  font-family: inherit;
+  font-weight: 600;
   font-size: 13px;
   cursor: pointer;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.5);
-  transition: filter .2s ease;
+  transition: filter .15s ease, transform .15s ease, background .2s ease;
 }
-.in-app-copy:hover { filter: brightness(1.06); }
+.in-app-copy svg { width: 14px; height: 14px; }
+.in-app-copy:hover { filter: brightness(1.05); }
+.in-app-copy:active { transform: scale(0.97); }
 .in-app-copy.is-copied {
-  background: linear-gradient(90deg, #D4F9E4, #0E7A4A);
+  background: #3FC486;
   color: #fff;
 }
 
-.in-app-try {
+/* Primary pill for option 2 */
+.in-app-pill {
+  margin-top: 12px;
   width: 100%;
-  padding: 11px 16px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 18px;
   border-radius: var(--pill);
-  border: 0.5px solid rgba(255, 255, 255, 0.14);
-  background: rgba(255, 255, 255, 0.05);
-  color: rgba(255, 255, 255, 0.78);
-  font-family: var(--sans);
-  font-weight: 500;
-  font-size: 13px;
+  border: none;
+  background: var(--accent);
+  color: #00131B;
+  font-family: inherit;
+  font-weight: 600;
+  font-size: 15px;
+  cursor: pointer;
+  transition: filter .15s ease, transform .15s ease;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.4),
+    0 6px 18px rgba(107, 199, 219, 0.28);
+}
+.in-app-pill svg { width: 17px; height: 17px; }
+.in-app-pill:hover { filter: brightness(1.05); }
+.in-app-pill:active { transform: scale(0.98); }
+
+/* Bottom-aligned secondary action — Apple sheet-cancel style */
+.in-app-cancel {
+  margin-top: 14px;
+  width: 100%;
+  padding: 14px 16px;
+  border-radius: 14px;
+  border: none;
+  background: rgba(255, 255, 255, 0.07);
+  color: rgba(255, 255, 255, 0.92);
+  font-family: inherit;
+  font-weight: 600;
+  font-size: 15px;
   cursor: pointer;
   transition: background .15s ease;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
 }
-.in-app-try:hover { background: rgba(255, 255, 255, 0.09); }
+.in-app-cancel:hover { background: rgba(255, 255, 255, 0.11); }
 
 @keyframes in-app-fade {
   from { opacity: 0; } to { opacity: 1; }
 }
 @keyframes in-app-slide {
-  from { transform: translateY(100%); } to { transform: translateY(0); }
+  from { transform: translateY(100%); opacity: 0.4; }
+  to   { transform: translateY(0); opacity: 1; }
 }
 @keyframes in-app-pop {
-  from { opacity: 0; transform: scale(0.96); } to { opacity: 1; transform: scale(1); }
+  from { opacity: 0; transform: scale(0.95); }
+  to   { opacity: 1; transform: scale(1); }
 }
 .hero-meta {
   margin-top: 32px;
