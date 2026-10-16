@@ -431,12 +431,135 @@
     });
   }
 
+  // ── In-app browser escape (TikTok, Instagram, FB, Snapchat, …) ──
+  //
+  // Many social-app webviews either silently fail or render a broken
+  // in-webview preview when the user taps an App Store link. We detect
+  // these environments, intercept the Download button, and show a small
+  // card that copies the link to the clipboard and tells the user how
+  // to open it in Safari. Zero behavior change in real browsers.
+  const APP_STORE_URL = "https://apps.apple.com/app/siraj-pro/id6789160938";
+
+  function detectInAppBrowser() {
+    const ua = navigator.userAgent || "";
+    if (/BytedanceWebview|musical_ly|TTWebView|TikTok|aweme/i.test(ua)) return "TikTok";
+    if (/Instagram/i.test(ua)) return "Instagram";
+    if (/\bFBAN\b|\bFBAV\b|FB_IAB|FBIOS/i.test(ua)) return "Facebook";
+    if (/\bSnapchat\b/i.test(ua)) return "Snapchat";
+    if (/\bLinkedInApp\b/i.test(ua)) return "LinkedIn";
+    if (/\bTwitter\b|TwitterAndroid/i.test(ua)) return "X / Twitter";
+    if (/\bLine\//i.test(ua)) return "Line";
+    if (/Pinterest/i.test(ua)) return "Pinterest";
+    if (/MicroMessenger/i.test(ua)) return "WeChat";
+    return null;
+  }
+
+  function isIOS() {
+    const ua = navigator.userAgent || "";
+    if (/iPad|iPhone|iPod/.test(ua)) return true;
+    // iPadOS 13+ identifies as Mac — detect via touch points.
+    return navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1;
+  }
+
+  function escapeHtml(s) {
+    return String(s).replace(/[&<>"']/g, (c) => (
+      { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]
+    ));
+  }
+
+  function buildInAppOverlay(appName) {
+    const existing = document.getElementById("in-app-overlay");
+    if (existing) return existing;
+
+    const el = document.createElement("div");
+    el.id = "in-app-overlay";
+    el.className = "in-app-overlay";
+    el.setAttribute("role", "dialog");
+    el.setAttribute("aria-modal", "true");
+    el.innerHTML = `
+      <div class="in-app-backdrop" data-dismiss></div>
+      <div class="in-app-card">
+        <button type="button" class="in-app-close" data-dismiss aria-label="Close">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
+            <path d="M6 6l12 12M18 6L6 18"/>
+          </svg>
+        </button>
+
+        <div class="in-app-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.05 20.28c-.98.95-2.05.8-3.08.35-1.09-.46-2.09-.48-3.24 0-1.44.62-2.2.44-3.06-.35C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.53 4.08zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z"/></svg>
+        </div>
+
+        <h3>Open in Safari to download</h3>
+        <p>You're viewing this inside <strong>${escapeHtml(appName)}</strong>'s in-app browser, which can't reliably open App Store links. Here's how to get Siraj Pro:</p>
+
+        <ol class="in-app-steps">
+          <li>Tap <strong>Copy link</strong> below.</li>
+          <li>Tap the <strong>•••</strong> (or share) menu in ${escapeHtml(appName)} and choose <strong>Open in browser</strong> — or paste the link into Safari.</li>
+        </ol>
+
+        <div class="in-app-link">
+          <input type="text" readonly value="${escapeHtml(APP_STORE_URL)}" aria-label="Siraj Pro App Store link">
+          <button type="button" class="in-app-copy" data-copy>Copy link</button>
+        </div>
+
+        <button type="button" class="in-app-try" data-try>Try opening anyway</button>
+      </div>
+    `;
+    document.body.appendChild(el);
+
+    const close = () => el.classList.remove("is-open");
+    el.querySelectorAll("[data-dismiss]").forEach((n) => n.addEventListener("click", close));
+    el.addEventListener("keydown", (e) => { if (e.key === "Escape") close(); });
+
+    const input = el.querySelector("input");
+    const copyBtn = el.querySelector("[data-copy]");
+    copyBtn.addEventListener("click", async () => {
+      try {
+        await navigator.clipboard.writeText(APP_STORE_URL);
+      } catch {
+        input.select();
+        input.setSelectionRange(0, APP_STORE_URL.length);
+        try { document.execCommand("copy"); } catch {}
+      }
+      copyBtn.textContent = "✓ Copied";
+      copyBtn.classList.add("is-copied");
+      setTimeout(() => {
+        copyBtn.textContent = "Copy link";
+        copyBtn.classList.remove("is-copied");
+      }, 1800);
+    });
+
+    el.querySelector("[data-try]").addEventListener("click", () => {
+      // Last-ditch: open in a new tab. Harmless in Safari, worth trying
+      // even in webviews that might surface the system App Store sheet.
+      window.open(APP_STORE_URL, "_blank", "noopener");
+    });
+
+    return el;
+  }
+
+  function initInAppBrowserGuard() {
+    const inAppName = detectInAppBrowser();
+    if (!inAppName || !isIOS()) return;        // only intercept on iOS inside a known in-app browser
+
+    document.querySelectorAll('a[href*="apps.apple.com"]').forEach((a) => {
+      a.addEventListener("click", (e) => {
+        e.preventDefault();
+        const overlay = buildInAppOverlay(inAppName);
+        overlay.classList.add("is-open");
+        // Nudge focus so VoiceOver / keyboard users land in the dialog.
+        setTimeout(() => overlay.querySelector(".in-app-copy")?.focus(), 50);
+      });
+    });
+  }
+
   function boot() {
     makeGlares();
     initNav();
     initThemeWidgets();
     initReveal();
     initWaitlist();
+    initInAppBrowserGuard();
     document.querySelectorAll("[data-year]").forEach((el) => {
       el.textContent = new Date().getFullYear();
     });
