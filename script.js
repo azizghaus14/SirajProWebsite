@@ -530,9 +530,23 @@
     });
 
     el.querySelector("[data-try]").addEventListener("click", () => {
-      // Last-ditch: open in a new tab. Harmless in Safari, worth trying
-      // even in webviews that might surface the system App Store sheet.
-      window.open(APP_STORE_URL, "_blank", "noopener");
+      // Best-effort escape sequence. There is no public API to force
+      // an in-app webview to hand off to Safari — iOS blocks that for
+      // security. These two attempts are the closest we can get:
+      //
+      // 1. `itms-apps://` is the direct "launch App Store app" scheme.
+      //    Some webviews (notably TikTok's older builds and Snapchat)
+      //    pass this through to iOS, which hands it to the App Store
+      //    app natively — bypassing Safari entirely.
+      // 2. If that silently no-ops, the setTimeout fallback opens the
+      //    standard HTTPS universal link in a new window, which at
+      //    worst reproduces the current behaviour and at best triggers
+      //    SKStoreProductViewController (the in-app store sheet).
+      const itmsUrl = APP_STORE_URL.replace(/^https?:\/\/apps\.apple\.com/, "itms-apps://apps.apple.com");
+      window.location.href = itmsUrl;
+      setTimeout(() => {
+        window.open(APP_STORE_URL, "_blank", "noopener");
+      }, 450);
     });
 
     return el;
