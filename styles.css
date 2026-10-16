@@ -314,10 +314,12 @@ p { color: var(--text-mid); }
   border-right: 0.5px solid rgba(255, 255, 255, 0.08);
 }
 .brand img {
-  width: 26px;
-  height: 26px;
+  width: 28px;
+  height: 28px;
   border-radius: 7px;
-  filter: drop-shadow(0 4px 10px rgba(107, 199, 219, 0.35));
+  box-shadow:
+    0 0 0 0.5px rgba(255, 255, 255, 0.14),
+    0 4px 10px rgba(0, 0, 0, 0.5);
 }
 
 .nav-links {
@@ -684,17 +686,18 @@ body { padding-top: 78px; }
 .in-app-hero { text-align: center; padding: 4px 4px 20px; }
 
 .in-app-app-icon {
-  width: 68px;
-  height: 68px;
+  width: 72px;
+  height: 72px;
   margin: 0 auto 16px;
-  border-radius: 16px;    /* iOS continuous-corner app-icon radius */
-  background: #fff;
+  border-radius: 17px;    /* iOS continuous-corner app-icon radius */
   box-shadow:
-    0 0 0 0.5px rgba(255, 255, 255, 0.18),
-    0 10px 24px rgba(0, 0, 0, 0.4),
-    inset 0 1px 0 rgba(255, 255, 255, 0.4);
+    0 0 0 0.5px rgba(255, 255, 255, 0.22),
+    0 12px 28px rgba(0, 0, 0, 0.5),
+    inset 0 1px 0 rgba(255, 255, 255, 0.18);
   overflow: hidden;
   display: grid; place-items: center;
+  /* No background — the real App Store icon ships with its own
+     dark starfield that extends to the corners. */
 }
 .in-app-app-icon img {
   width: 100%;
