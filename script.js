@@ -438,7 +438,28 @@
   // these environments, intercept the Download button, and show a small
   // card that copies the link to the clipboard and tells the user how
   // to open it in Safari. Zero behavior change in real browsers.
-  const APP_STORE_URL = "https://apps.apple.com/app/apple-store/id6789160938?pt=128928479&ct=tiktok-bio2&mt=8";
+  const APP_STORE_BASE = "https://apps.apple.com/app/apple-store/id6789160938";
+
+  // Attribution campaigns configured in App Store Connect → App Analytics.
+  // Keys are UA-detected sources (see detectInAppBrowser below). The map
+  // only overrides the URL for visitors from that source; everyone else
+  // gets the clean APP_STORE_BASE so organic installs stay un-attributed.
+  // Add more as you create them in App Store Connect.
+  const CAMPAIGN_URLS = {
+    TikTok: `${APP_STORE_BASE}?pt=128928479&ct=tiktok-bio2&mt=8`,
+  };
+
+  // Resolved at page load — the correct URL for THIS visitor.
+  // Uses detectInAppBrowser() (declared below but hoisted).
+  const APP_STORE_URL = CAMPAIGN_URLS[detectInAppBrowser()] || APP_STORE_BASE;
+
+  // Rewrite every static apps.apple.com link in the DOM to the
+  // visitor-appropriate URL. Runs once at boot (see initAppStoreLinks).
+  function initAppStoreLinks() {
+    document.querySelectorAll('a[href*="apps.apple.com"]').forEach((a) => {
+      a.href = APP_STORE_URL;
+    });
+  }
 
   function detectInAppBrowser() {
     const ua = navigator.userAgent || "";
@@ -589,6 +610,7 @@
   function boot() {
     makeGlares();
     initNav();
+    initAppStoreLinks();   // rewrite static apps.apple.com hrefs per visitor source
     initThemeWidgets();
     initReveal();
     initWaitlist();
