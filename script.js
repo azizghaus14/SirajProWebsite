@@ -438,7 +438,7 @@
   // these environments, intercept the Download button, and show a small
   // card that copies the link to the clipboard and tells the user how
   // to open it in Safari. Zero behavior change in real browsers.
-  const APP_STORE_URL = "https://apps.apple.com/app/siraj-pro/id6789160938";
+  const APP_STORE_URL = "https://apps.apple.com/app/apple-store/id6789160938?pt=128928479&ct=tiktok-bio2&mt=8";
 
   function detectInAppBrowser() {
     const ua = navigator.userAgent || "";
